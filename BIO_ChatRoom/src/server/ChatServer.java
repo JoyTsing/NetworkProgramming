@@ -11,12 +11,12 @@ import java.util.Map;
  */
 
 public class ChatServer {
-    private int DEFAULT_PORT = 8888;
+    private final int DEFAULT_PORT = 8888;
     private final String QUIT = "quit";
 
     private ServerSocket serverSocket = null;
     //从服务器端获取消息 标记每一个客户可以用端口号标记 同时对应着消息发送的write
-    private Map<Integer, Writer> connectedClients = null;
+    private Map<Integer, Writer> connectedClients;
 
     public ChatServer() {
         connectedClients = new HashMap<>();
@@ -24,20 +24,22 @@ public class ChatServer {
 
     /**
      * 每一个客户端与服务端建立连接时 会返回一个socket对象
+     * 注意线程安全
      */
-    public void addClient(Socket socket) throws IOException {
+    public synchronized void addClient(Socket socket) throws IOException {
         if (socket != null) {
             int key = socket.getPort();
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(socket.getOutputStream())
             );
+
             connectedClients.put(key, writer);
             System.out.println("客户端[" + key + "]连接到服务器");
         }
 
     }
 
-    public void removeClient(Socket socket) throws IOException {
+    public synchronized void removeClient(Socket socket) throws IOException {
         if (socket != null) {
             int key = socket.getPort();
             if (connectedClients.containsKey(key)) {
@@ -51,7 +53,7 @@ public class ChatServer {
     /**
      * 转发消息给除发送者外的其他用户
      */
-    public void forwardMessage(Socket socket, String fwdMsg) throws IOException {
+    public synchronized void forwardMessage(Socket socket, String fwdMsg) throws IOException {
         for (Integer id : connectedClients.keySet()) {
             if (!id.equals(socket.getPort())) {
                 Writer writer = connectedClients.get(id);
@@ -61,7 +63,11 @@ public class ChatServer {
         }
     }
 
-    public void close() {
+    public boolean readyToQuit(String msg) {
+        return QUIT.equals(msg);
+    }
+
+    public synchronized void close() {
         if (serverSocket != null) {
             try {
                 serverSocket.close();
@@ -85,7 +91,7 @@ public class ChatServer {
                 //不停等待是否有新的客户端加入，并为每一个客户端分配一个线程
                 Socket socket = serverSocket.accept();
                 //创建Handler处理线程
-
+                new Thread(new ChatHandler(this, socket)).start();
 
             }
 
@@ -98,7 +104,7 @@ public class ChatServer {
     }
 
     public static void main(String[] args) {
-        ChatServer server=new ChatServer();
+        ChatServer server = new ChatServer();
         server.start();
     }
 }
