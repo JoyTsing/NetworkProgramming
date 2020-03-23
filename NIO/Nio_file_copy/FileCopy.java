@@ -56,13 +56,6 @@ public class FileCopy {
             }
         };
 
-        FileCopyRunner nioBufferCopy = (source, target) -> {
-
-        };
-
-        FileCopyRunner nioTransferCopy = (source, target) -> {
-
-        };
     }
 
 
