@@ -4,10 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.nio.charset.Charset;
 import java.util.Set;
 
@@ -108,15 +105,15 @@ public class ChatServer {
     private void forwardMessage(SocketChannel origin, String fwdMsg) throws IOException {
         //先找所有在线对象
         for (SelectionKey key : selector.keys()) {
-            SocketChannel connectedClient = (SocketChannel) key.channel();
+            Channel connectedClient = key.channel();
             if (key.channel() instanceof ServerSocketChannel)
                 continue;
             if (key.isValid() && !origin.equals(key.channel())) {
                 wBuffer.clear();
-                wBuffer.put(charset.encode((origin) + ":" + fwdMsg));
+                wBuffer.put(charset.encode(getClientName(origin) + ":" + fwdMsg));
                 wBuffer.flip();
                 while (wBuffer.hasRemaining()) {
-                    connectedClient.write(wBuffer);
+                    ((SocketChannel)connectedClient).write(wBuffer);
                 }
             }
         }
@@ -140,7 +137,7 @@ public class ChatServer {
         return QUIT.equals(msg);
     }
 
-    public synchronized void close(Closeable closable) {
+    public void close(Closeable closable) {
         if (closable != null) {
             try {
                 closable.close();
