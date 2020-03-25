@@ -6,9 +6,6 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 保存在线的用户
- */
 
 public class ChatServer {
     private final int DEFAULT_PORT = 8888;
