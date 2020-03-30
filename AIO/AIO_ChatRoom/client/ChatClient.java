@@ -59,6 +59,7 @@ public class ChatClient {
                     buffer.flip();
                     String msg = String.valueOf(charset.decode(buffer));
                     buffer.clear();
+                    System.out.println(msg);
                 }
             }
         } catch (IOException e) {
@@ -71,7 +72,7 @@ public class ChatClient {
     }
 
     public void send(String msg) {
-        if (msg != null) {
+        if (msg.isEmpty()) {
             return;
         }
 
