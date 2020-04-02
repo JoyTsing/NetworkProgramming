@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class StaticProcessor {
 
-    public void process(Request request, Response response){
+    public void process(Request request, Response response) {
         try {
             response.sendStaticResource();
         } catch (IOException e) {

@@ -9,7 +9,6 @@ import java.util.Date;
 
 public class TimeServlet implements Servlet {
 
-
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
 
@@ -24,10 +23,9 @@ public class TimeServlet implements Servlet {
     public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         PrintWriter out = servletResponse.getWriter();
         out.println(ConnectorUtils.renderStatus(HttpStatus.SC_OK));
-        out.println("Time:");
-        out.println(new SimpleDateFormat("yyy-MM-dd HH:mm:ss")
+        out.println("What time is it now?");
+        out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(new Date()));
-
     }
 
     @Override
